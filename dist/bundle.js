@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "6c8e188908cb3737edff"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "462e39337140803d0b35"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -40189,51 +40189,110 @@
 	  value: true
 	});
 	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
 	var _react = __webpack_require__(6);
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _appContent = __webpack_require__(428);
+	
+	var _appContent2 = _interopRequireDefault(_appContent);
+	
+	var _ajax = __webpack_require__(434);
+	
+	var _ajax2 = _interopRequireDefault(_ajax);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var App = function App() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: 'app' },
-	    _react2.default.createElement(
-	      'div',
-	      { className: 'user-info' },
-	      _react2.default.createElement('img', { src: 'https://avatars2.githubusercontent.com/u/13294634?v=4' }),
-	      _react2.default.createElement(
-	        'h2',
-	        null,
-	        _react2.default.createElement(
-	          'a',
-	          { href: 'https://github.com/LucasCMota' },
-	          'LucasCmota'
-	        )
-	      ),
-	      _react2.default.createElement(
-	        'ul',
-	        { className: 'repo-info' },
-	        _react2.default.createElement(
-	          'li',
-	          null,
-	          '-Repositorios: 99'
-	        ),
-	        _react2.default.createElement(
-	          'li',
-	          null,
-	          '-Serguidores: 99'
-	        ),
-	        _react2.default.createElement(
-	          'li',
-	          null,
-	          '-Seguindo: 99'
-	        )
-	      )
-	    )
-	  );
-	};
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var App = function (_Component) {
+	  _inherits(App, _Component);
+	
+	  function App() {
+	    _classCallCheck(this, App);
+	
+	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
+	
+	    _this.state = {
+	      userinfo: null,
+	      repos: [],
+	      starred: []
+	    };
+	    return _this;
+	  }
+	
+	  _createClass(App, [{
+	    key: 'handleSearch',
+	    value: function handleSearch(e) {
+	      var _this2 = this;
+	
+	      var value = e.target.value;
+	      var keyCode = e.whic || e.keyCode;
+	      var ENTER = 13;
+	
+	      if (keyCode === ENTER) {
+	        (0, _ajax2.default)().get('https://api.github.com/users/' + value).then(function (result) {
+	          _this2.setState({
+	            userinfo: {
+	              username: result.name,
+	              login: result.login,
+	              photo: result.avatar_url,
+	              repos: result.public_repos,
+	              followers: result.followers,
+	              following: result.following,
+	              starred: result.starred_url
+	            },
+	            repos: [],
+	            starred: []
+	          });
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'getRepos',
+	    value: function getRepos(type) {
+	      var _this3 = this;
+	
+	      return function (e) {
+	        (0, _ajax2.default)().get('https://api.github.com/users/' + _this3.state.userinfo.login + '/' + type).then(function (result) {
+	          _this3.setState(_defineProperty({}, type, result.map(function (repo) {
+	            return {
+	              name: repo.name,
+	              link: repo.html_url
+	            };
+	          })));
+	        });
+	      };
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this4 = this;
+	
+	      return _react2.default.createElement(_appContent2.default, {
+	        userinfo: this.state.userinfo,
+	        repos: this.state.repos,
+	        starred: this.state.starred,
+	        handleSearch: function handleSearch(e) {
+	          return _this4.handleSearch(e);
+	        },
+	        getRepos: this.getRepos('repos'),
+	        getStars: this.getRepos('starred')
+	      });
+	    }
+	  }]);
+	
+	  return App;
+	}(_react.Component);
+	
 	var _default = App;
 	exports.default = _default;
 	;
@@ -40249,6 +40308,390 @@
 	})();
 
 	;
+
+/***/ }),
+/* 428 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(6);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _repos = __webpack_require__(429);
+	
+	var _repos2 = _interopRequireDefault(_repos);
+	
+	var _search = __webpack_require__(430);
+	
+	var _search2 = _interopRequireDefault(_search);
+	
+	var _userInfo = __webpack_require__(431);
+	
+	var _userInfo2 = _interopRequireDefault(_userInfo);
+	
+	var _actions = __webpack_require__(432);
+	
+	var _actions2 = _interopRequireDefault(_actions);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var AppContent = function AppContent(_ref) {
+	  var userinfo = _ref.userinfo,
+	      repos = _ref.repos,
+	      starred = _ref.starred,
+	      handleSearch = _ref.handleSearch,
+	      getRepos = _ref.getRepos,
+	      getStars = _ref.getStars;
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'app' },
+	    _react2.default.createElement(_search2.default, { handleSearch: handleSearch }),
+	    !!userinfo && _react2.default.createElement(_userInfo2.default, { userinfo: userinfo }),
+	    !!userinfo && _react2.default.createElement(_actions2.default, { getRepos: getRepos, getStars: getStars }),
+	    !!repos.length && _react2.default.createElement(_repos2.default, {
+	      className: 'repos',
+	      title: 'Repositorios',
+	      repos: repos
+	    }),
+	    !!starred.length && _react2.default.createElement(_repos2.default, {
+	      className: 'starred',
+	      title: 'Favoritos',
+	      repos: starred
+	    })
+	  );
+	};
+	
+	AppContent.propTypes = {
+	  userinfo: _react.PropTypes.object,
+	  repos: _react.PropTypes.array.isRequired,
+	  starred: _react.PropTypes.array.isRequired
+	};
+	var _default = AppContent;
+	exports.default = _default;
+	;
+	
+	(function () {
+	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	    return;
+	  }
+	
+	  __REACT_HOT_LOADER__.register(AppContent, 'AppContent', '/home/jupiter/AppsReact/17App-gitHub/src/components/app-content.js');
+	
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/home/jupiter/AppsReact/17App-gitHub/src/components/app-content.js');
+	})();
+
+	;
+
+/***/ }),
+/* 429 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(6);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var Repos = function Repos(_ref) {
+	  var className = _ref.className,
+	      title = _ref.title,
+	      repos = _ref.repos;
+	  return _react2.default.createElement(
+	    'div',
+	    { className: className },
+	    _react2.default.createElement(
+	      'h2',
+	      null,
+	      title
+	    ),
+	    _react2.default.createElement(
+	      'ul',
+	      null,
+	      repos.map(function (repo, index) {
+	        return _react2.default.createElement(
+	          'li',
+	          { key: index },
+	          _react2.default.createElement(
+	            'a',
+	            { href: repo.link },
+	            repo.name
+	          )
+	        );
+	      })
+	    )
+	  );
+	};
+	
+	Repos.defaultProps = {
+	  className: ''
+	};
+	
+	Repos.propTypes = {
+	  className: _react.PropTypes.string,
+	  title: _react.PropTypes.string.isRequired,
+	  repos: _react.PropTypes.array.isRequired
+	};
+	
+	var _default = Repos;
+	exports.default = _default;
+	;
+	
+	(function () {
+	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	    return;
+	  }
+	
+	  __REACT_HOT_LOADER__.register(Repos, 'Repos', '/home/jupiter/AppsReact/17App-gitHub/src/components/repos.js');
+	
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/home/jupiter/AppsReact/17App-gitHub/src/components/repos.js');
+	})();
+
+	;
+
+/***/ }),
+/* 430 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(6);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var Search = function Search(_ref) {
+	  var handleSearch = _ref.handleSearch;
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'search' },
+	    _react2.default.createElement('input', {
+	      type: 'search',
+	      placeholder: 'digite o nome do usuario',
+	      onKeyUp: handleSearch
+	    })
+	  );
+	};
+	
+	var _default = Search;
+	exports.default = _default;
+	;
+	
+	(function () {
+	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	    return;
+	  }
+	
+	  __REACT_HOT_LOADER__.register(Search, 'Search', '/home/jupiter/AppsReact/17App-gitHub/src/components/search.js');
+	
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/home/jupiter/AppsReact/17App-gitHub/src/components/search.js');
+	})();
+
+	;
+
+/***/ }),
+/* 431 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(6);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var UserInfo = function UserInfo(_ref) {
+	  var userinfo = _ref.userinfo;
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'user-info' },
+	    _react2.default.createElement('img', { src: userinfo.photo }),
+	    _react2.default.createElement(
+	      'h1',
+	      null,
+	      _react2.default.createElement(
+	        'a',
+	        { href: 'https://github.com/' + userinfo.login },
+	        userinfo.username
+	      )
+	    ),
+	    _react2.default.createElement(
+	      'ul',
+	      { className: 'repo-info' },
+	      _react2.default.createElement(
+	        'li',
+	        null,
+	        'Repositorios: ',
+	        userinfo.repos
+	      ),
+	      _react2.default.createElement(
+	        'li',
+	        null,
+	        'Serguidores: ',
+	        userinfo.followers
+	      ),
+	      _react2.default.createElement(
+	        'li',
+	        null,
+	        'Seguindo: ',
+	        userinfo.following
+	      )
+	    )
+	  );
+	};
+	
+	UserInfo.propTypes = {
+	  userinfo: _react.PropTypes.shape({
+	    username: _react.PropTypes.string,
+	    photo: _react.PropTypes.string.isRequired,
+	    login: _react.PropTypes.string.isRequired,
+	    repos: _react.PropTypes.number.isRequired,
+	    followers: _react.PropTypes.number.isRequired,
+	    following: _react.PropTypes.number.isRequired
+	  })
+	};
+	
+	var _default = UserInfo;
+	exports.default = _default;
+	;
+	
+	(function () {
+	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	    return;
+	  }
+	
+	  __REACT_HOT_LOADER__.register(UserInfo, 'UserInfo', '/home/jupiter/AppsReact/17App-gitHub/src/components/user-info.js');
+	
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/home/jupiter/AppsReact/17App-gitHub/src/components/user-info.js');
+	})();
+
+	;
+
+/***/ }),
+/* 432 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(6);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _button = __webpack_require__(433);
+	
+	var _button2 = _interopRequireDefault(_button);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var Actions = function Actions(_ref) {
+	  var getRepos = _ref.getRepos,
+	      getStars = _ref.getStars;
+	  return _react2.default.createElement(
+	    'div',
+	    { className: 'actions' },
+	    _react2.default.createElement(_button2.default, { children: 'Ver Repositorios', handleClick: getRepos }),
+	    _react2.default.createElement(_button2.default, { children: 'Ver Favoritos', handleClick: getStars })
+	  );
+	};
+	
+	var _default = Actions;
+	exports.default = _default;
+	;
+	
+	(function () {
+	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	    return;
+	  }
+	
+	  __REACT_HOT_LOADER__.register(Actions, 'Actions', '/home/jupiter/AppsReact/17App-gitHub/src/components/actions.js');
+	
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/home/jupiter/AppsReact/17App-gitHub/src/components/actions.js');
+	})();
+
+	;
+
+/***/ }),
+/* 433 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(6);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var Button = function Button(_ref) {
+	  var children = _ref.children,
+	      handleClick = _ref.handleClick;
+	  return _react2.default.createElement(
+	    'button',
+	    {
+	      className: 'main-button',
+	      onClick: handleClick },
+	    children
+	  );
+	};
+	
+	var _default = Button;
+	exports.default = _default;
+	;
+	
+	(function () {
+	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	    return;
+	  }
+	
+	  __REACT_HOT_LOADER__.register(Button, 'Button', '/home/jupiter/AppsReact/17App-gitHub/src/components/button.js');
+	
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/home/jupiter/AppsReact/17App-gitHub/src/components/button.js');
+	})();
+
+	;
+
+/***/ }),
+/* 434 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/**!
+	 * ajax - v2.3.0
+	 * Ajax module in Vanilla JS
+	 * https://github.com/fdaciuk/ajax
+	
+	 * Sun Jul 23 2017 10:55:09 GMT-0300 (BRT)
+	 * MIT (c) Fernando Daciuk
+	*/
+	!function(e,t){"use strict"; true?!(__WEBPACK_AMD_DEFINE_FACTORY__ = (t), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)):"object"==typeof exports?exports=module.exports=t():e.ajax=t()}(this,function(){"use strict";function e(e){var r=["get","post","put","delete"];return e=e||{},e.baseUrl=e.baseUrl||"",e.method&&e.url?n(e.method,e.baseUrl+e.url,t(e.data),e):r.reduce(function(r,o){return r[o]=function(r,u){return n(o,e.baseUrl+r,t(u),e)},r},{})}function t(e){return e||null}function n(e,t,n,u){var c=["then","catch","always"],i=c.reduce(function(e,t){return e[t]=function(n){return e[t]=n,e},e},{}),f=new XMLHttpRequest,d=r(t,n,e);return f.open(e,d,!0),f.withCredentials=u.hasOwnProperty("withCredentials"),o(f,u.headers),f.addEventListener("readystatechange",a(i,f),!1),f.send(s(n)),i.abort=function(){return f.abort()},i}function r(e,t,n){if("get"!==n.toLowerCase()||!t)return e;var r=s(t),o=e.indexOf("?")>-1?"&":"?";return e+o+r}function o(e,t){t=t||{},u(t)||(t["Content-Type"]="application/x-www-form-urlencoded"),Object.keys(t).forEach(function(n){t[n]&&e.setRequestHeader(n,t[n])})}function u(e){return Object.keys(e).some(function(e){return"content-type"===e.toLowerCase()})}function a(e,t){return function n(){t.readyState===t.DONE&&(t.removeEventListener("readystatechange",n,!1),e.always.apply(e,c(t)),t.status>=200&&t.status<300?e.then.apply(e,c(t)):e["catch"].apply(e,c(t)))}}function c(e){var t;try{t=JSON.parse(e.responseText)}catch(n){t=e.responseText}return[t,e]}function s(e){return i(e)?f(e):e}function i(e){return"[object Object]"===Object.prototype.toString.call(e)}function f(e){return Object.keys(e).reduce(function(t,n){var r=t?t+"&":"";return r+d(n)+"="+d(e[n])},"")}function d(e){return encodeURIComponent(e)}return e});
 
 /***/ })
 /******/ ]);
