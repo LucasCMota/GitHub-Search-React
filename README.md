@@ -3,16 +3,16 @@
 Faz Buscas de usuarios utulizando a API do GitHub
 
 
-### Installing
+## Installing
 
-######instale as dependencias
+#### instale as dependencias
 
 npm i
 
-######gere o bundle
+#### gere o bundle
 
 webpack
 
-######inicie o servidor
+#### inicie o servidor
 
 npm start
