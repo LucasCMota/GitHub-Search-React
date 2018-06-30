@@ -9,10 +9,6 @@ Faz Buscas de usuarios utulizando a API do GitHub
 
 npm i
 
-#### gere o bundle
-
-webpack
-
 #### inicie o servidor
 
 npm start
