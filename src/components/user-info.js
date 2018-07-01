@@ -28,7 +28,9 @@ UserInfo.propTypes = {
     login: PropTypes.string.isRequired,
     repos: PropTypes.number.isRequired,
     followers: PropTypes.number.isRequired,
-    following: PropTypes.number.isRequired
+    following: PropTypes.number.isRequired,
+    starred: PropTypes.string.isRequired,
+    company: PropTypes.string.isRequired
   })
 }
 

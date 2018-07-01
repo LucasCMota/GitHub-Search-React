@@ -9,7 +9,8 @@ class App extends Component {
     this.state = {
       userinfo: null,
       repos: [],
-      starred: []
+      starred: [],
+      orgs: []
     }
   }
 
@@ -32,7 +33,8 @@ class App extends Component {
               starred: result.starred_url
             },
             repos: [],
-            starred: []
+            starred: [],
+            orgs: []
           })
         })
     }
@@ -54,14 +56,33 @@ class App extends Component {
     }
   }
 
+  getOrgs (type) {
+    return (e) => {
+      ajax().get(`https://api.github.com/users/${this.state.userinfo.login}/${type}`)
+        .then((result) => {
+          this.setState({
+            [type]: result.map((org) => {
+              return {
+                name: org.login,
+                link: org.url,
+                avatar: org.avatar_url
+              }
+            })
+          })
+        })
+    }
+  }
+
   render () {
     return <AppContent
       userinfo={this.state.userinfo}
       repos={this.state.repos}
       starred={this.state.starred}
+      orgs={this.state.orgs}
       handleSearch={(e) => this.handleSearch(e)}
       getRepos={this.getRepos('repos')}
       getStars={this.getRepos('starred')}
+      getOrgs={this.getOrgs('orgs')}
     />
   }
 }
