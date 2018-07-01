@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "462e39337140803d0b35"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "2e71a69e71604c7e6f4a"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -40199,7 +40199,7 @@
 	
 	var _appContent2 = _interopRequireDefault(_appContent);
 	
-	var _ajax = __webpack_require__(434);
+	var _ajax = __webpack_require__(435);
 	
 	var _ajax2 = _interopRequireDefault(_ajax);
 	
@@ -40224,7 +40224,8 @@
 	    _this.state = {
 	      userinfo: null,
 	      repos: [],
-	      starred: []
+	      starred: [],
+	      orgs: []
 	    };
 	    return _this;
 	  }
@@ -40251,7 +40252,8 @@
 	              starred: result.starred_url
 	            },
 	            repos: [],
-	            starred: []
+	            starred: [],
+	            orgs: []
 	          });
 	        });
 	      }
@@ -40273,19 +40275,38 @@
 	      };
 	    }
 	  }, {
+	    key: 'getOrgs',
+	    value: function getOrgs(type) {
+	      var _this4 = this;
+	
+	      return function (e) {
+	        (0, _ajax2.default)().get('https://api.github.com/users/' + _this4.state.userinfo.login + '/' + type).then(function (result) {
+	          _this4.setState(_defineProperty({}, type, result.map(function (org) {
+	            return {
+	              name: org.login,
+	              link: org.url,
+	              avatar: org.avatar_url
+	            };
+	          })));
+	        });
+	      };
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this4 = this;
+	      var _this5 = this;
 	
 	      return _react2.default.createElement(_appContent2.default, {
 	        userinfo: this.state.userinfo,
 	        repos: this.state.repos,
 	        starred: this.state.starred,
+	        orgs: this.state.orgs,
 	        handleSearch: function handleSearch(e) {
-	          return _this4.handleSearch(e);
+	          return _this5.handleSearch(e);
 	        },
 	        getRepos: this.getRepos('repos'),
-	        getStars: this.getRepos('starred')
+	        getStars: this.getRepos('starred'),
+	        getOrgs: this.getOrgs('orgs')
 	      });
 	    }
 	  }]);
@@ -40339,30 +40360,41 @@
 	
 	var _actions2 = _interopRequireDefault(_actions);
 	
+	var _orgs = __webpack_require__(434);
+	
+	var _orgs2 = _interopRequireDefault(_orgs);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var AppContent = function AppContent(_ref) {
 	  var userinfo = _ref.userinfo,
 	      repos = _ref.repos,
 	      starred = _ref.starred,
+	      orgs = _ref.orgs,
 	      handleSearch = _ref.handleSearch,
 	      getRepos = _ref.getRepos,
-	      getStars = _ref.getStars;
+	      getStars = _ref.getStars,
+	      getOrgs = _ref.getOrgs;
 	  return _react2.default.createElement(
 	    'div',
 	    { className: 'app' },
 	    _react2.default.createElement(_search2.default, { handleSearch: handleSearch }),
 	    !!userinfo && _react2.default.createElement(_userInfo2.default, { userinfo: userinfo }),
-	    !!userinfo && _react2.default.createElement(_actions2.default, { getRepos: getRepos, getStars: getStars }),
+	    !!userinfo && _react2.default.createElement(_actions2.default, { getRepos: getRepos, getStars: getStars, getOrgs: getOrgs }),
 	    !!repos.length && _react2.default.createElement(_repos2.default, {
 	      className: 'repos',
 	      title: 'Repositorios',
 	      repos: repos
 	    }),
 	    !!starred.length && _react2.default.createElement(_repos2.default, {
-	      className: 'starred',
-	      title: 'Favoritos',
+	      className: 'repos',
+	      title: 'favoritos',
 	      repos: starred
+	    }),
+	    !!orgs.length && _react2.default.createElement(_orgs2.default, {
+	      className: 'orgs',
+	      title: 'organiza\xE7\xF5es',
+	      orgs: orgs
 	    })
 	  );
 	};
@@ -40370,8 +40402,10 @@
 	AppContent.propTypes = {
 	  userinfo: _react.PropTypes.object,
 	  repos: _react.PropTypes.array.isRequired,
-	  starred: _react.PropTypes.array.isRequired
+	  starred: _react.PropTypes.array.isRequired,
+	  orgs: _react.PropTypes.array.isRequired
 	};
+	
 	var _default = AppContent;
 	exports.default = _default;
 	;
@@ -40568,7 +40602,9 @@
 	    login: _react.PropTypes.string.isRequired,
 	    repos: _react.PropTypes.number.isRequired,
 	    followers: _react.PropTypes.number.isRequired,
-	    following: _react.PropTypes.number.isRequired
+	    following: _react.PropTypes.number.isRequired,
+	    starred: _react.PropTypes.string.isRequired,
+	    company: _react.PropTypes.string.isRequired
 	  })
 	};
 	
@@ -40610,13 +40646,21 @@
 	
 	var Actions = function Actions(_ref) {
 	  var getRepos = _ref.getRepos,
-	      getStars = _ref.getStars;
+	      getStars = _ref.getStars,
+	      getOrgs = _ref.getOrgs;
 	  return _react2.default.createElement(
 	    'div',
 	    { className: 'actions' },
 	    _react2.default.createElement(_button2.default, { children: 'Ver Repositorios', handleClick: getRepos }),
-	    _react2.default.createElement(_button2.default, { children: 'Ver Favoritos', handleClick: getStars })
+	    _react2.default.createElement(_button2.default, { children: 'Ver Favoritos', handleClick: getStars }),
+	    _react2.default.createElement(_button2.default, { children: 'Ver Orgs', handleClick: getOrgs })
 	  );
+	};
+	
+	Actions.propTypes = {
+	  getRepos: _react.PropTypes.func.isRequired,
+	  getStars: _react.PropTypes.func.isRequired,
+	  getOrgs: _react.PropTypes.func.isRequired
 	};
 	
 	var _default = Actions;
@@ -40663,6 +40707,11 @@
 	  );
 	};
 	
+	Button.propTypes = {
+	  children: _react.PropTypes.string.isRequired,
+	  handleClick: _react.PropTypes.func.isRequired
+	};
+	
 	var _default = Button;
 	exports.default = _default;
 	;
@@ -40681,6 +40730,77 @@
 
 /***/ }),
 /* 434 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(6);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var Orgs = function Orgs(_ref) {
+	  var className = _ref.className,
+	      title = _ref.title,
+	      orgs = _ref.orgs;
+	  return _react2.default.createElement(
+	    'div',
+	    { className: className },
+	    _react2.default.createElement(
+	      'h2',
+	      null,
+	      title
+	    ),
+	    _react2.default.createElement(
+	      'ul',
+	      null,
+	      orgs.map(function (org, index) {
+	        return _react2.default.createElement(
+	          'li',
+	          { key: index },
+	          _react2.default.createElement('img', { src: org.avatar }),
+	          _react2.default.createElement(
+	            'a',
+	            { href: org.link },
+	            org.name
+	          )
+	        );
+	      })
+	    )
+	  );
+	};
+	Orgs.defaultProps = {
+	  className: ''
+	};
+	
+	Orgs.propTypes = {
+	  className: _react.PropTypes.string,
+	  title: _react.PropTypes.string.isRequired,
+	  orgs: _react.PropTypes.array.isRequired
+	};
+	var _default = Orgs;
+	exports.default = _default;
+	;
+	
+	(function () {
+	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
+	    return;
+	  }
+	
+	  __REACT_HOT_LOADER__.register(Orgs, 'Orgs', '/home/jupiter/AppsReact/17App-gitHub/src/components/orgs.js');
+	
+	  __REACT_HOT_LOADER__.register(_default, 'default', '/home/jupiter/AppsReact/17App-gitHub/src/components/orgs.js');
+	})();
+
+	;
+
+/***/ }),
+/* 435 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/**!
