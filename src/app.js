@@ -10,8 +10,15 @@ class App extends Component {
       userinfo: null,
       repos: [],
       starred: [],
-      orgs: []
+      orgs: [],
+      isFetching: false
     }
+  }
+
+  getGitHubApiUrl (username, type) {
+    const internalType = type ? `/${type}` : ''
+    const internalUser = username ? `${username}` : ''
+    return `https://api.github.com/users/${internalUser}${internalType}`
   }
 
   handleSearch (e) {
@@ -20,7 +27,9 @@ class App extends Component {
     const ENTER = 13
 
     if (keyCode === ENTER) {
-      ajax().get(`https://api.github.com/users/${value}`)
+      this.setState({ isFetching: true })
+
+      ajax().get(this.getGitHubApiUrl(value))
         .then((result) => {
           this.setState({
             userinfo: {
@@ -30,42 +39,31 @@ class App extends Component {
               repos: result.public_repos,
               followers: result.followers,
               following: result.following,
-              starred: result.starred_url
+              starred: result.starred_url,
+              orgs: result.organizations_url
             },
             repos: [],
             starred: [],
             orgs: []
           })
         })
+        .always(() => {
+          this.setState({ isFetching: false })
+        })
     }
   }
 
   getRepos (type) {
     return (e) => {
-      ajax().get(`https://api.github.com/users/${this.state.userinfo.login}/${type}`)
+      const username = this.state.userinfo.login
+      ajax().get(this.getGitHubApiUrl(username, type))
         .then((result) => {
           this.setState({
             [type]: result.map((repo) => {
               return {
-                name: repo.name,
-                link: repo.html_url
-              }
-            })
-          })
-        })
-    }
-  }
-
-  getOrgs (type) {
-    return (e) => {
-      ajax().get(`https://api.github.com/users/${this.state.userinfo.login}/${type}`)
-        .then((result) => {
-          this.setState({
-            [type]: result.map((org) => {
-              return {
-                name: org.login,
-                link: org.url,
-                avatar: org.avatar_url
+                avatar: repo.avatar_url || null,
+                name: repo.name || repo.login,
+                link: repo.html_url || `https://github.com/${repo.login}`
               }
             })
           })
@@ -74,16 +72,15 @@ class App extends Component {
   }
 
   render () {
-    return <AppContent
-      userinfo={this.state.userinfo}
-      repos={this.state.repos}
-      starred={this.state.starred}
-      orgs={this.state.orgs}
-      handleSearch={(e) => this.handleSearch(e)}
-      getRepos={this.getRepos('repos')}
-      getStars={this.getRepos('starred')}
-      getOrgs={this.getOrgs('orgs')}
-    />
+    return (
+      <AppContent
+        {...this.state}
+        handleSearch={(e) => this.handleSearch(e)}
+        getRepos={this.getRepos('repos')}
+        getStars={this.getRepos('starred')}
+        getOrgs={this.getRepos('orgs')}
+      />
+    )
   }
 }
 

@@ -7,6 +7,7 @@ const Repos = ({ className, title, repos }) => (
     <ul>
       {repos.map((repo, index) => (
         <li key={index}>
+          <img src={repo.avatar} />
           <a href={repo.link}>{repo.name}</a>
         </li>
       ))}
@@ -15,7 +16,8 @@ const Repos = ({ className, title, repos }) => (
 )
 
 Repos.defaultProps = {
-  className: ''
+  className: '',
+  src: ''
 }
 
 Repos.propTypes = {
