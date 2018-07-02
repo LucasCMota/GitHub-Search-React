@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "2e71a69e71604c7e6f4a"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "beb01be80f07a22c6536"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -40189,6 +40189,8 @@
 	  value: true
 	});
 	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _react = __webpack_require__(6);
@@ -40199,7 +40201,7 @@
 	
 	var _appContent2 = _interopRequireDefault(_appContent);
 	
-	var _ajax = __webpack_require__(435);
+	var _ajax = __webpack_require__(434);
 	
 	var _ajax2 = _interopRequireDefault(_ajax);
 	
@@ -40225,12 +40227,20 @@
 	      userinfo: null,
 	      repos: [],
 	      starred: [],
-	      orgs: []
+	      orgs: [],
+	      isFetching: false
 	    };
 	    return _this;
 	  }
 	
 	  _createClass(App, [{
+	    key: 'getGitHubApiUrl',
+	    value: function getGitHubApiUrl(username, type) {
+	      var internalType = type ? '/' + type : '';
+	      var internalUser = username ? '' + username : '';
+	      return 'https://api.github.com/users/' + internalUser + internalType;
+	    }
+	  }, {
 	    key: 'handleSearch',
 	    value: function handleSearch(e) {
 	      var _this2 = this;
@@ -40240,7 +40250,9 @@
 	      var ENTER = 13;
 	
 	      if (keyCode === ENTER) {
-	        (0, _ajax2.default)().get('https://api.github.com/users/' + value).then(function (result) {
+	        this.setState({ isFetching: true });
+	
+	        (0, _ajax2.default)().get(this.getGitHubApiUrl(value)).then(function (result) {
 	          _this2.setState({
 	            userinfo: {
 	              username: result.name,
@@ -40249,12 +40261,15 @@
 	              repos: result.public_repos,
 	              followers: result.followers,
 	              following: result.following,
-	              starred: result.starred_url
+	              starred: result.starred_url,
+	              orgs: result.organizations_url
 	            },
 	            repos: [],
 	            starred: [],
 	            orgs: []
 	          });
+	        }).always(function () {
+	          _this2.setState({ isFetching: false });
 	        });
 	      }
 	    }
@@ -40264,28 +40279,13 @@
 	      var _this3 = this;
 	
 	      return function (e) {
-	        (0, _ajax2.default)().get('https://api.github.com/users/' + _this3.state.userinfo.login + '/' + type).then(function (result) {
+	        var username = _this3.state.userinfo.login;
+	        (0, _ajax2.default)().get(_this3.getGitHubApiUrl(username, type)).then(function (result) {
 	          _this3.setState(_defineProperty({}, type, result.map(function (repo) {
 	            return {
-	              name: repo.name,
-	              link: repo.html_url
-	            };
-	          })));
-	        });
-	      };
-	    }
-	  }, {
-	    key: 'getOrgs',
-	    value: function getOrgs(type) {
-	      var _this4 = this;
-	
-	      return function (e) {
-	        (0, _ajax2.default)().get('https://api.github.com/users/' + _this4.state.userinfo.login + '/' + type).then(function (result) {
-	          _this4.setState(_defineProperty({}, type, result.map(function (org) {
-	            return {
-	              name: org.login,
-	              link: org.url,
-	              avatar: org.avatar_url
+	              avatar: repo.avatar_url || null,
+	              name: repo.name || repo.login,
+	              link: repo.html_url || 'https://github.com/' + repo.login
 	            };
 	          })));
 	        });
@@ -40294,20 +40294,16 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _this5 = this;
+	      var _this4 = this;
 	
-	      return _react2.default.createElement(_appContent2.default, {
-	        userinfo: this.state.userinfo,
-	        repos: this.state.repos,
-	        starred: this.state.starred,
-	        orgs: this.state.orgs,
+	      return _react2.default.createElement(_appContent2.default, _extends({}, this.state, {
 	        handleSearch: function handleSearch(e) {
-	          return _this5.handleSearch(e);
+	          return _this4.handleSearch(e);
 	        },
 	        getRepos: this.getRepos('repos'),
 	        getStars: this.getRepos('starred'),
-	        getOrgs: this.getOrgs('orgs')
-	      });
+	        getOrgs: this.getRepos('orgs')
+	      }));
 	    }
 	  }]);
 	
@@ -40360,17 +40356,14 @@
 	
 	var _actions2 = _interopRequireDefault(_actions);
 	
-	var _orgs = __webpack_require__(434);
-	
-	var _orgs2 = _interopRequireDefault(_orgs);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var AppContent = function AppContent(_ref) {
 	  var userinfo = _ref.userinfo,
 	      repos = _ref.repos,
-	      starred = _ref.starred,
+	      isFetching = _ref.isFetching,
 	      orgs = _ref.orgs,
+	      starred = _ref.starred,
 	      handleSearch = _ref.handleSearch,
 	      getRepos = _ref.getRepos,
 	      getStars = _ref.getStars,
@@ -40378,7 +40371,12 @@
 	  return _react2.default.createElement(
 	    'div',
 	    { className: 'app' },
-	    _react2.default.createElement(_search2.default, { handleSearch: handleSearch }),
+	    _react2.default.createElement(_search2.default, { isDisabled: isFetching, handleSearch: handleSearch }),
+	    isFetching && _react2.default.createElement(
+	      'div',
+	      null,
+	      'LOADING...'
+	    ),
 	    !!userinfo && _react2.default.createElement(_userInfo2.default, { userinfo: userinfo }),
 	    !!userinfo && _react2.default.createElement(_actions2.default, { getRepos: getRepos, getStars: getStars, getOrgs: getOrgs }),
 	    !!repos.length && _react2.default.createElement(_repos2.default, {
@@ -40388,13 +40386,13 @@
 	    }),
 	    !!starred.length && _react2.default.createElement(_repos2.default, {
 	      className: 'repos',
-	      title: 'favoritos',
+	      title: 'Favoritos',
 	      repos: starred
 	    }),
-	    !!orgs.length && _react2.default.createElement(_orgs2.default, {
-	      className: 'orgs',
-	      title: 'organiza\xE7\xF5es',
-	      orgs: orgs
+	    !!orgs.length && _react2.default.createElement(_repos2.default, {
+	      className: 'repos',
+	      title: 'Organiza\xE7\xF5es',
+	      repos: orgs
 	    })
 	  );
 	};
@@ -40403,7 +40401,12 @@
 	  userinfo: _react.PropTypes.object,
 	  repos: _react.PropTypes.array.isRequired,
 	  starred: _react.PropTypes.array.isRequired,
-	  orgs: _react.PropTypes.array.isRequired
+	  orgs: _react.PropTypes.array.isRequired,
+	  isFetching: _react.PropTypes.bool.isRequired,
+	  handleSearch: _react.PropTypes.func.isRequired,
+	  getOrgs: _react.PropTypes.func.isRequired,
+	  getStars: _react.PropTypes.func.isRequired,
+	  getRepos: _react.PropTypes.func.isRequired
 	};
 	
 	var _default = AppContent;
@@ -40457,6 +40460,7 @@
 	        return _react2.default.createElement(
 	          'li',
 	          { key: index },
+	          _react2.default.createElement('img', { src: repo.avatar }),
 	          _react2.default.createElement(
 	            'a',
 	            { href: repo.link },
@@ -40469,7 +40473,8 @@
 	};
 	
 	Repos.defaultProps = {
-	  className: ''
+	  className: '',
+	  src: ''
 	};
 	
 	Repos.propTypes = {
@@ -40511,16 +40516,23 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var Search = function Search(_ref) {
-	  var handleSearch = _ref.handleSearch;
+	  var isDisabled = _ref.isDisabled,
+	      handleSearch = _ref.handleSearch;
 	  return _react2.default.createElement(
 	    'div',
 	    { className: 'search' },
 	    _react2.default.createElement('input', {
 	      type: 'search',
 	      placeholder: 'digite o nome do usuario',
+	      disabled: isDisabled,
 	      onKeyUp: handleSearch
 	    })
 	  );
+	};
+	
+	Search.propTypes = {
+	  isDisabled: _react.PropTypes.bool.isRequired,
+	  handleSearch: _react.PropTypes.func.isRequired
 	};
 	
 	var _default = Search;
@@ -40603,8 +40615,7 @@
 	    repos: _react.PropTypes.number.isRequired,
 	    followers: _react.PropTypes.number.isRequired,
 	    following: _react.PropTypes.number.isRequired,
-	    starred: _react.PropTypes.string.isRequired,
-	    company: _react.PropTypes.string.isRequired
+	    starred: _react.PropTypes.string.isRequired
 	  })
 	};
 	
@@ -40710,6 +40721,7 @@
 	Button.propTypes = {
 	  children: _react.PropTypes.string.isRequired,
 	  handleClick: _react.PropTypes.func.isRequired
+	
 	};
 	
 	var _default = Button;
@@ -40730,77 +40742,6 @@
 
 /***/ }),
 /* 434 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _react = __webpack_require__(6);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var Orgs = function Orgs(_ref) {
-	  var className = _ref.className,
-	      title = _ref.title,
-	      orgs = _ref.orgs;
-	  return _react2.default.createElement(
-	    'div',
-	    { className: className },
-	    _react2.default.createElement(
-	      'h2',
-	      null,
-	      title
-	    ),
-	    _react2.default.createElement(
-	      'ul',
-	      null,
-	      orgs.map(function (org, index) {
-	        return _react2.default.createElement(
-	          'li',
-	          { key: index },
-	          _react2.default.createElement('img', { src: org.avatar }),
-	          _react2.default.createElement(
-	            'a',
-	            { href: org.link },
-	            org.name
-	          )
-	        );
-	      })
-	    )
-	  );
-	};
-	Orgs.defaultProps = {
-	  className: ''
-	};
-	
-	Orgs.propTypes = {
-	  className: _react.PropTypes.string,
-	  title: _react.PropTypes.string.isRequired,
-	  orgs: _react.PropTypes.array.isRequired
-	};
-	var _default = Orgs;
-	exports.default = _default;
-	;
-	
-	(function () {
-	  if (typeof __REACT_HOT_LOADER__ === 'undefined') {
-	    return;
-	  }
-	
-	  __REACT_HOT_LOADER__.register(Orgs, 'Orgs', '/home/jupiter/AppsReact/17App-gitHub/src/components/orgs.js');
-	
-	  __REACT_HOT_LOADER__.register(_default, 'default', '/home/jupiter/AppsReact/17App-gitHub/src/components/orgs.js');
-	})();
-
-	;
-
-/***/ }),
-/* 435 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/**!
