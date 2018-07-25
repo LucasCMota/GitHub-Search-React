@@ -1,12 +1,15 @@
 {
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "webpack --progress --config webpack.prod.config -p"
   },
+
   "dependencies": {
     "@fdaciuk/ajax": "^2.3.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
   },
+
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^6.4.1",
@@ -24,6 +27,7 @@
     "webpack-dev-server": "^1.16.5",
     "webpack-validator": "^3.0.1"
   },
+
   "standard": {
     "globals": [
       "alert"
